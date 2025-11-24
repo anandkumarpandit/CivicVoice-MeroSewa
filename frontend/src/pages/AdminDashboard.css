@@ -301,58 +301,61 @@
 }
 
 /* Name */
-.complaints-table th:nth-child(3),
-.complaints-table td:nth-child(3) {
+.complaints-table th:nth-child(2),
+.complaints-table td:nth-child(2) {
   width: auto;
+  min-width: 120px;
 }
 
 /* Phone */
-.complaints-table th:nth-child(4),
-.complaints-table td:nth-child(4) {
-  min-width: 150px;
-  max-width: 200px;
+.complaints-table th:nth-child(3),
+.complaints-table td:nth-child(3) {
+  min-width: 120px;
+  max-width: 150px;
 }
 
 /* Title */
-.complaints-table th:nth-child(5),
-.complaints-table td:nth-child(5) {
-  min-width: 200px;
-  max-width: 350px;
+.complaints-table th:nth-child(4),
+.complaints-table td:nth-child(4) {
+  min-width: 150px;
+  max-width: 250px;
 }
 
 /* Description */
+.complaints-table th:nth-child(5),
+.complaints-table td:nth-child(5) {
+  min-width: 250px;
+  max-width: 400px;
+}
+
+/* Address */
 .complaints-table th:nth-child(6),
 .complaints-table td:nth-child(6) {
   min-width: 200px;
   max-width: 300px;
 }
 
-/* Address */
+/* Type */
 .complaints-table th:nth-child(7),
 .complaints-table td:nth-child(7) {
   width: auto;
 }
 
-/* Type */
+/* Status */
 .complaints-table th:nth-child(8),
 .complaints-table td:nth-child(8) {
   width: auto;
 }
 
-/* Status */
+/* Ward */
 .complaints-table th:nth-child(9),
 .complaints-table td:nth-child(9) {
   width: auto;
 }
 
-/* Ward */
-.complaints-table th:nth-child(10),
-.complaints-table td:nth-child(10) {
-  width: auto;
-}
-
 /* Date */
 
+/* Allow Full Text Wrapping */
 /* Allow Full Text Wrapping */
 .complaints-table td:nth-child(4),
 /* Title */
@@ -361,10 +364,12 @@
 .complaints-table td:nth-child(6) {
   /* Address */
   white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
   display: table-cell;
-  /* Reset display */
   line-height: 1.5;
 }
 

@@ -36,7 +36,8 @@ app.use(
       if (
         origin.match(/^http:\/\/localhost:\d+$/) ||
         origin.match(/^http:\/\/127\.0\.0\.1:\d+$/) ||
-        origin.includes("onrender.com")
+        origin.includes("onrender.com") ||
+        origin.includes("vercel.app")
       ) {
         return callback(null, true);
       } else {
@@ -46,7 +47,7 @@ app.use(
     credentials: true,
   })
 );
-     
+
 
 app.use(
   cors({
