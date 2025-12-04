@@ -1,29 +1,7 @@
 # MeroSewa - Complaint Management System
 
 A comprehensive web-based complaint management system for local government bodies (Gaupalika/Municipality) built with the MERN stack.
-
-## 🛠️ Technology Stack
-
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - ODM for MongoDB
-- **JWT** - Authentication
-- **Multer** - File upload handling
-- **Bcrypt** - Password hashing
-- **Helmet** - Security middleware
-- **CORS** - Cross-origin resource sharing
-
-### Frontend
-- **React.js** - UI library
-- **React Router DOM** - Client-side routing
-- **React Hook Form** - Form management
-- **Axios** - HTTP client
-- **QRCode.react** - QR code generation
-- **QR Scanner** - QR code scanning
-- **Tailwind CSS** - Utility-first CSS framework
-- 
+ 
 ## Screenshots
 ![App Screenshot](https://img.sanishtech.com/u/27994cee00a7ef32ab2405c4c3c91597.png)
 ![App Screenshot](https://img.sanishtech.com/u/b78d2e65205a5146447ef81cd276cd40.png)
