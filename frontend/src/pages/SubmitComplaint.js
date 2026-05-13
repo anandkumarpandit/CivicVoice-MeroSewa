@@ -17,6 +17,8 @@ const SubmitComplaint = () => {
   const [isQRSubmission, setIsQRSubmission] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [uploadedUrls, setUploadedUrls] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
@@ -117,7 +119,9 @@ const SubmitComplaint = () => {
       if (loc || ward) {
         setIsQRSubmission(true);
       }
-    } catch (_) { }
+    } catch (error) {
+      console.warn('URL param parsing failed', error);
+    }
   }, [setValue]);
 
   const onSubmit = async (data) => {
@@ -142,7 +146,16 @@ const SubmitComplaint = () => {
             formData.append(key, data[key]);
           }
         });
-        selectedFiles.forEach((file) => formData.append('attachments', file));
+        
+        // Add pre-uploaded URLs
+        uploadedUrls.forEach(url => formData.append('attachmentUrls[]', url));
+        
+        // In case some files failed background upload, send them normally
+        selectedFiles.forEach((file) => {
+          if (!file.isUploaded) {
+            formData.append('attachments', file);
+          }
+        });
 
         response = await complaintAPI.submitComplaint(formData);
       }
@@ -154,6 +167,7 @@ const SubmitComplaint = () => {
         setSubmitSuccess(true);
         reset();
         setSelectedFiles([]);
+        setUploadedUrls([]);
         setQrData(null);
         setIsQRSubmission(false);
       } else {
@@ -179,39 +193,71 @@ const SubmitComplaint = () => {
     setIsCompressing(true);
     
     const compressionOptions = {
-      maxSizeMB: 1,            // Max size 1MB
-      maxWidthOrHeight: 1920, // Max dimension 1920px
+      maxSizeMB: 0.6,          // Reduced to 0.6MB for even faster upload
+      maxWidthOrHeight: 1280, // Reduced to 1280px (plenty for complaints)
       useWebWorker: true,
     };
 
     try {
       const processedFiles = await Promise.all(
         files.map(async (file) => {
+          let fileToProcess = file;
           // Only compress images
           if (file.type.startsWith('image/')) {
             try {
-              console.log(`Original size: ${file.size / 1024 / 1024} MB`);
               const compressedFile = await imageCompression(file, compressionOptions);
-              console.log(`Compressed size: ${compressedFile.size / 1024 / 1024} MB`);
-              
-              // Maintain the original filename but change the file object
-              return new File([compressedFile], file.name, {
+              fileToProcess = new File([compressedFile], file.name, {
                 type: compressedFile.type,
                 lastModified: Date.now(),
               });
             } catch (error) {
               console.error('Compression error:', error);
-              return file; // Fallback to original if compression fails
             }
           }
-          return file; // PDF/DOC files are not compressed
+          
+          // Background upload start
+          const newFileObj = { 
+            file: fileToProcess, 
+            name: fileToProcess.name, 
+            size: fileToProcess.size, 
+            status: 'uploading',
+            isUploaded: false 
+          };
+          
+          // We'll update the state after mapping to show initial 'uploading' status
+          return newFileObj;
         })
       );
 
-      setSelectedFiles((prev) => [...prev, ...processedFiles].slice(0, 5));
+      const updatedSelectedFiles = [...selectedFiles, ...processedFiles].slice(0, 5);
+      setSelectedFiles(updatedSelectedFiles);
+      
+      // Start actual uploads in background
+      processedFiles.forEach(async (fileObj, idx) => {
+        try {
+          const res = await complaintAPI.uploadAttachment(fileObj.file);
+          if (res.data.success) {
+            const url = res.data.url;
+            setUploadedUrls(prev => [...prev, url]);
+            
+            // Mark this specific file as uploaded in the list
+            setSelectedFiles(prev => prev.map(f => 
+              f.name === fileObj.name && f.size === fileObj.size 
+                ? { ...f, status: 'done', isUploaded: true, url: url } 
+                : f
+            ));
+          }
+        } catch (error) {
+          console.error('Background upload failed:', error);
+          setSelectedFiles(prev => prev.map(f => 
+            f.name === fileObj.name && f.size === fileObj.size 
+              ? { ...f, status: 'error' } 
+              : f
+          ));
+        }
+      });
     } catch (error) {
       console.error('Error processing files:', error);
-      setSelectedFiles((prev) => [...prev, ...files].slice(0, 5));
     } finally {
       setIsCompressing(false);
       // Reset input value so the same file can be selected again if needed
@@ -507,8 +553,9 @@ const SubmitComplaint = () => {
               {selectedFiles.length > 0 && (
                 <div className="selected-files">
                   {selectedFiles.map((file, index) => (
-                    <div key={index} className="file-chip">
-                      📄 {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                    <div key={index} className={`file-chip ${file.status}`}>
+                      {file.status === 'uploading' ? '⏳' : file.status === 'error' ? '❌' : '✅'} 
+                      {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                       <button
                         type="button"
                         className="file-chip-remove"

@@ -20,16 +20,26 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "complaints",
-    resource_type: "auto", // Allow other file types like PDF
-    // allowed_formats: ["jpg", "png", "jpeg", "pdf"], // Remove strict format check for now to test
+    resource_type: "auto",
   },
 });
 
 const upload = multer({ storage });
 
-
 // -------------------------------------------------
-// NORMAL COMPLAINT SUBMIT
+// STANDALONE IMAGE UPLOAD (For smooth background uploading)
+// -------------------------------------------------
+router.post("/upload-attachment", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
+    }
+    res.json({ success: true, url: req.file.path });
+  } catch (err) {
+    console.error("❌ Upload Error:", err);
+    res.status(500).json({ success: false, message: "Upload failed" });
+  }
+});
 // -------------------------------------------------
 router.post("/submit", upload.array("attachments", 5), async (req, res) => {
   try {
@@ -45,7 +55,13 @@ router.post("/submit", upload.array("attachments", 5), async (req, res) => {
       title,
       description,
       incidentDate,
+      attachmentUrls, // URLs already uploaded in background
     } = req.body;
+
+    const finalAttachments = [...(attachmentUrls || [])];
+    if (req.files) {
+      req.files.forEach(f => finalAttachments.push(f.path));
+    }
 
     const complaint = new Complaint({
       personName,
@@ -59,7 +75,7 @@ router.post("/submit", upload.array("attachments", 5), async (req, res) => {
       title,
       description,
       incidentDate,
-      attachments: (req.files || []).map((f) => f.path), // Save Cloudinary URL
+      attachments: finalAttachments, 
       complaintNumber: "CMP" + Math.floor(100000 + Math.random() * 900000),
       status: "Submitted",
     });

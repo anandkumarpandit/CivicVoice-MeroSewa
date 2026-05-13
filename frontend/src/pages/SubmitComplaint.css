@@ -230,6 +230,26 @@
     border-radius: 8px;
     font-size: 0.875rem;
     color: var(--text-primary);
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.file-chip.uploading {
+    background: #fffaf0;
+    border-color: #fbd38d;
+    color: #9c4221;
+}
+
+.file-chip.done {
+    background: #f0fff4;
+    border-color: #9ae6b4;
+    color: #22543d;
+}
+
+.file-chip.error {
+    background: #fff5f5;
+    border-color: #feb2b2;
+    color: #822727;
 }
 
 .file-chip-remove {

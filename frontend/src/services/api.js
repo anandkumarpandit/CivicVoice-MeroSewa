@@ -83,7 +83,18 @@ export const complaintAPI = {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-      timeout: 60000, // Increase timeout to 60s for file uploads
+      timeout: 120000, // Match backend 120s timeout
+    });
+  },
+
+  uploadAttachment: (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.post("/complaints/upload-attachment", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      timeout: 60000,
     });
   },
 
