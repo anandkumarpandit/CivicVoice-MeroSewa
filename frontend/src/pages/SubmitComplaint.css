@@ -294,6 +294,15 @@
     transform: none;
 }
 
+.submission-tip {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
 /* Success Modal */
 .success-modal-overlay {
     position: fixed;

@@ -525,9 +525,16 @@ const SubmitComplaint = () => {
 
           {/* Submit Button */}
           <div className="submit-button-container">
-            <button type="submit" className="submit-button" disabled={isSubmitting}>
+            <button type="submit" className="submit-button" disabled={isSubmitting || isCompressing}>
               {isSubmitting ? '⏳ Submitting...' : '🚀 Submit Complaint'}
             </button>
+            {(isSubmitting || isCompressing) && (
+              <p className="submission-tip">
+                {isCompressing 
+                  ? "Optimizing your images for faster upload..." 
+                  : "Uploading your complaint. This may take a moment depending on your internet speed."}
+              </p>
+            )}
           </div>
         </form>
       </div>
