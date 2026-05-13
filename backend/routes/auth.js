@@ -43,7 +43,7 @@ router.post("/register", async (req, res) => {
     const newAdmin = new User({
       username: username.toLowerCase(),
       email: email || undefined,
-      password: password, 
+      password: password,
       role: "admin",
       isActive: true,
     });
@@ -75,7 +75,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-  
+
     const user = await User.findOne({ username: username.toLowerCase() });
 
     if (!user) {
@@ -85,7 +85,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
- 
+
     if (user.role !== "admin") {
       return res.json({
         success: false,

@@ -83,6 +83,7 @@ export const complaintAPI = {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      timeout: 60000, // Increase timeout to 60s for file uploads
     });
   },
 

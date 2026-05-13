@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { complaintAPI } from '../services/api';
 import QRCodeScanner from '../components/QRScanner';
 import QRCodeDisplay from '../components/QRCodeDisplay';
+import imageCompression from 'browser-image-compression';
 import './SubmitComplaint.css';
 
 const SubmitComplaint = () => {
@@ -15,6 +16,7 @@ const SubmitComplaint = () => {
   const [qrCode, setQrCode] = useState(null);
   const [isQRSubmission, setIsQRSubmission] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
@@ -170,9 +172,51 @@ const SubmitComplaint = () => {
     }
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-    setSelectedFiles((prev) => [...prev, ...files].slice(0, 5)); // Max 5 files
+    if (files.length === 0) return;
+
+    setIsCompressing(true);
+    
+    const compressionOptions = {
+      maxSizeMB: 1,            // Max size 1MB
+      maxWidthOrHeight: 1920, // Max dimension 1920px
+      useWebWorker: true,
+    };
+
+    try {
+      const processedFiles = await Promise.all(
+        files.map(async (file) => {
+          // Only compress images
+          if (file.type.startsWith('image/')) {
+            try {
+              console.log(`Original size: ${file.size / 1024 / 1024} MB`);
+              const compressedFile = await imageCompression(file, compressionOptions);
+              console.log(`Compressed size: ${compressedFile.size / 1024 / 1024} MB`);
+              
+              // Maintain the original filename but change the file object
+              return new File([compressedFile], file.name, {
+                type: compressedFile.type,
+                lastModified: Date.now(),
+              });
+            } catch (error) {
+              console.error('Compression error:', error);
+              return file; // Fallback to original if compression fails
+            }
+          }
+          return file; // PDF/DOC files are not compressed
+        })
+      );
+
+      setSelectedFiles((prev) => [...prev, ...processedFiles].slice(0, 5));
+    } catch (error) {
+      console.error('Error processing files:', error);
+      setSelectedFiles((prev) => [...prev, ...files].slice(0, 5));
+    } finally {
+      setIsCompressing(false);
+      // Reset input value so the same file can be selected again if needed
+      e.target.value = '';
+    }
   };
 
   const removeFile = (index) => {
@@ -441,8 +485,14 @@ const SubmitComplaint = () => {
               <div className="file-upload-area" onClick={() => document.getElementById('file-input').click()}>
                 <div className="file-upload-icon">📎</div>
                 <div className="file-upload-text">
-                  Click to upload images or documents<br />
-                  <small>(Max 5 files, images/PDF/DOC)</small>
+                  {isCompressing ? (
+                    <span style={{ color: '#4a5568', fontWeight: 'bold' }}>⏳ Compressing images...</span>
+                  ) : (
+                    <>
+                      Click to upload images or documents<br />
+                      <small>(Max 5 files, images/PDF/DOC)</small>
+                    </>
+                  )}
                 </div>
                 <input
                   id="file-input"

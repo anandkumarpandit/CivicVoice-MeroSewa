@@ -13,13 +13,17 @@ const app = express();
 app.use(helmet());
 app.use(compression()); // Compress all HTTP responses
 
-// Request timeout middleware (15 seconds)
+// Request timeout middleware (120 seconds for large uploads)
 app.use((req, res, next) => {
-  req.setTimeout(15000, () => {
-    res.status(408).json({ success: false, message: "Request timeout" });
+  req.setTimeout(120000, () => {
+    if (!res.headersSent) {
+      res.status(408).json({ success: false, message: "Request timeout" });
+    }
   });
-  res.setTimeout(15000, () => {
-    res.status(408).json({ success: false, message: "Response timeout" });
+  res.setTimeout(120000, () => {
+    if (!res.headersSent) {
+      res.status(408).json({ success: false, message: "Response timeout" });
+    }
   });
   next();
 });
