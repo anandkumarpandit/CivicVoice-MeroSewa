@@ -5,7 +5,7 @@ A comprehensive web-based complaint management system for local government bodie
 
 
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Installation
 
