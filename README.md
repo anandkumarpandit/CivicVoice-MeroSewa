@@ -2,13 +2,7 @@
 
 A comprehensive web-based complaint management system for local government bodies (Gaupalika/Municipality) built with the MERN stack.
  
-## Screenshots
 
-![App Screenshot](https://img.sanishtech.com/u/b78d2e65205a5146447ef81cd276cd40.png)
-- ![App Screenshot](https://img.sanishtech.com/u/cca02ed1303b35184afca9a5fc1110d2.png)
-- ![App Screenshot](https://img.sanishtech.com/u/4ef02a8e6ae3f6a148d7cc13e7206195.png)
-- ![App Screenshot](https://img.sanishtech.com/u/ec4fd5e5ae03cce813e5d1ba614fe85f.png)
-- ![App Screenshot](https://img.sanishtech.com/u/b034ebb63dbe9593d4a61fdb0b9d1166.png)
 
 
 ## 🚀 Getting Started
